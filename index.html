@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Behavior Matrix Points Display (iPad Landscape)</title>
+    <title>Class Points</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,7 +25,6 @@
     </script>
     
     <style>
-        /* Disable touch callouts, text selection and rubber-banding for native iPad app feel */
         * {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -44,7 +43,7 @@
             overflow: hidden;
         }
 
-        /* iPad Control Console Plate */
+        /* Console Plate Frame */
         .console-plate {
             background: linear-gradient(145deg, #1e232d 0%, #12151b 100%);
             box-shadow: 
@@ -54,7 +53,7 @@
             border: 2px solid #2e3545;
         }
 
-        /* LED Indicator Styling */
+        /* LED Status Indicator */
         .led-indicator {
             width: 28px;
             height: 28px;
@@ -87,79 +86,125 @@
             filter: blur(0.5px);
         }
 
-        /* Large iPad Touch Switch Housing */
-        .switch-housing {
-            background: #0d0f14;
+        /* Vertical Slider Enclosure */
+        .slider-housing {
+            background: #11151c;
             border-radius: 20px;
             padding: 8px;
             box-shadow: 
                 inset 0 4px 10px rgba(0, 0, 0, 0.9),
-                0 1px 1px rgba(255, 255, 255, 0.08);
-            border: 1px solid #252b38;
+                0 1px 1px rgba(255, 255, 255, 0.12);
+            border: 2px solid #2a3242;
         }
 
-        .switch-track {
+        /* Sunken Vertical Track */
+        .slider-track {
             position: relative;
-            width: 86px;
-            height: 175px;
-            background: linear-gradient(180deg, #090a0d 0%, #161a22 100%);
+            width: 90px;
+            height: 200px;
+            background: linear-gradient(180deg, #080a0d 0%, #161b24 100%);
             border-radius: 14px;
             cursor: pointer;
             overflow: hidden;
-            border: 1px solid #1e2430;
-            -webkit-tap-highlight-color: transparent;
+            border: 2px solid #28303f;
+            touch-action: none;
         }
 
-        /* Physical Toggle Switch Rocker Handle */
-        .switch-handle {
+        /* Central Recessed Metal Groove */
+        .slider-track::before {
+            content: '';
             position: absolute;
-            left: 7px;
-            width: 70px;
-            height: 82px;
+            top: 12px;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            background: #06080b;
+            border-radius: 5px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.95), 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        /* Top and Bottom Track Markers */
+        .slider-track::after {
+            content: 'ON • • • • • • • • • OFF';
+            position: absolute;
+            top: 8px;
+            bottom: 8px;
+            right: 8px;
+            writing-mode: vertical-lr;
+            font-size: 8px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.15);
+            letter-spacing: 2px;
+            pointer-events: none;
+        }
+
+        /* High Visibility Tactile Slider Handle (50% Track Height) */
+        .slider-handle {
+            position: absolute;
+            left: 6px;
+            right: 6px;
+            height: 92px; /* Exactly 50% of inner track area */
             border-radius: 10px;
-            background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+            background: linear-gradient(180deg, #94a3b8 0%, #475569 45%, #334155 100%);
             box-shadow: 
-                0 8px 16px rgba(0,0,0,0.7),
-                inset 0 1px 1px rgba(255,255,255,0.35),
-                inset 0 -3px 6px rgba(0,0,0,0.6);
-            transition: transform 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
-            transform: translateY(78px); /* Default Down/Off Position */
+                0 8px 16px rgba(0,0,0,0.85),
+                inset 0 2px 2px rgba(255,255,255,0.8),
+                inset 0 -3px 6px rgba(0,0,0,0.7);
+            transform: translateY(96px); /* Rests at BOTTOM (OFF) by default */
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid #334155;
+            border: 1.5px solid #cbd5e1;
+            z-index: 2;
+            transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2), background 0.2s ease, border-color 0.2s ease;
         }
 
-        /* Grip Texture on Handle */
-        .switch-handle::before {
-            content: '';
-            width: 38px;
-            height: 5px;
-            background: #0f172a;
+        .slider-handle.dragging {
+            transition: none !important; /* Continuous smooth tracking during drag */
+        }
+
+        /* Tactile Ridge Texture on Handle */
+        .slider-handle-grip {
+            width: 44px;
+            height: 6px;
+            background: #1e293b;
             border-radius: 3px;
-            box-shadow: 0 1px 0 rgba(255,255,255,0.15), 0 10px 0 #0f172a, 0 -10px 0 #0f172a;
-        }
-
-        /* Active UP State */
-        .switch-track.on .switch-handle {
-            transform: translateY(6px); /* Up/On Position */
-            background: linear-gradient(180deg, #334155 0%, #0f172a 100%);
             box-shadow: 
-                0 10px 20px rgba(0,0,0,0.8),
-                inset 0 1px 2px rgba(255,255,255,0.4),
-                0 0 12px rgba(34, 197, 94, 0.25);
-            border-color: #475569;
+                0 1px 0 rgba(255,255,255,0.4), 
+                0 12px 0 #1e293b, 
+                0 13px 0 rgba(255,255,255,0.4),
+                0 -12px 0 #1e293b,
+                0 -11px 0 rgba(255,255,255,0.4);
+            pointer-events: none;
         }
 
-        .switch-track.on .switch-handle::after {
-            content: '';
+        /* Handle Status Badge Text */
+        .slider-handle-text {
             position: absolute;
-            bottom: 8px;
-            width: 30px;
-            height: 4px;
-            background: #22c55e;
-            border-radius: 2px;
-            box-shadow: 0 0 10px #22c55e;
+            bottom: 6px;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            color: #1e293b;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+
+        /* ON State Styling for Handle */
+        .slider-track.on .slider-handle {
+            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 45%, #64748b 100%);
+            box-shadow: 
+                0 10px 22px rgba(0,0,0,0.9),
+                inset 0 2px 3px rgba(255,255,255,1),
+                0 0 18px rgba(34, 197, 94, 0.4);
+            border-color: #ffffff;
+        }
+
+        .slider-track.on .slider-handle-text {
+            color: #15803d;
+            text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
         }
 
         /* Digital Readout Screen Enclosure */
@@ -182,7 +227,7 @@
             border: 1.5px solid #161c27;
         }
 
-        /* Glass CRT Scanline & Mesh Texture */
+        /* Scanline Overlay */
         .digital-screen::before {
             content: '';
             position: absolute;
@@ -227,14 +272,11 @@
         <header class="flex justify-between items-center px-4 py-2">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-slate-300 to-slate-400">
-                    BEHAVIOR MATRIX CONTROL
+                    CLASS POINTS
                 </h1>
-                <p class="text-xs font-bold text-slate-400 tracking-widest uppercase mt-0.5">
-                    iPad Touch Screen Console
-                </p>
             </div>
 
-            <!-- Top Right Reset & Sound Controls -->
+            <!-- Top Right Control Buttons -->
             <div class="flex items-center gap-3">
                 <button 
                     onclick="toggleSound()" 
@@ -255,110 +297,113 @@
             </div>
         </header>
 
+        <!-- Main Interactive Console Surface -->
         <div class="console-plate rounded-3xl p-6 sm:p-8 flex-1 my-2 grid grid-cols-12 gap-6 items-center">
             
-            <!-- LEFT HALF: 3 Interactive Switches (7 Columns in iPad Landscape) -->
+            <!-- LEFT HALF: 3 Vertical Sliders -->
             <section class="col-span-7 h-full flex items-center justify-center bg-slate-950/50 rounded-2xl border border-slate-800/90 p-4 sm:p-6 shadow-inner">
                 <div class="w-full flex justify-around items-end max-w-lg">
                     
-                    <!-- SWITCH 0: SAFE -->
+                    <!-- SLIDER 0: SAFE -->
                     <div class="flex flex-col items-center gap-3">
-                        <!-- LED Indicator -->
                         <div class="flex flex-col items-center gap-1">
                             <span class="text-[10px] font-extrabold text-slate-400 tracking-wider">STATUS</span>
                             <div id="led-0" class="led-indicator" aria-label="Safe status indicator off"></div>
                         </div>
 
-                        <!-- Switch Target (Extra Large Hit Target for iPad Fingers) -->
-                        <div class="switch-housing">
-                            <button 
-                                id="switch-0"
-                                onclick="toggleSwitch(0)"
-                                class="switch-track focus:outline-none"
-                                role="switch"
-                                aria-checked="false"
-                                aria-label="Toggle Safe">
-                                <div class="switch-handle"></div>
-                            </button>
+                        <div class="slider-housing">
+                            <div 
+                                id="slider-track-0"
+                                class="slider-track"
+                                role="slider"
+                                aria-valuemin="0"
+                                aria-valuemax="1"
+                                aria-valuenow="0"
+                                aria-label="Safe Slider">
+                                <div id="slider-handle-0" class="slider-handle">
+                                    <div class="slider-handle-grip"></div>
+                                    <span id="handle-text-0" class="slider-handle-text">OFF</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Label -->
                         <div class="text-center mt-1">
                             <span class="block text-base sm:text-lg font-black tracking-wider text-slate-100">
                                 SAFE
                             </span>
-                            <span id="state-0" class="text-xs font-bold text-slate-500 uppercase tracking-widest">OFF</span>
+                            <span id="state-0" class="text-xs font-bold text-slate-400 uppercase tracking-widest">0 PTS</span>
                         </div>
                     </div>
 
-                    <!-- SWITCH 1: RESPONSIBLE -->
+                    <!-- SLIDER 1: RESPONSIBLE -->
                     <div class="flex flex-col items-center gap-3">
-                        <!-- LED Indicator -->
                         <div class="flex flex-col items-center gap-1">
                             <span class="text-[10px] font-extrabold text-slate-400 tracking-wider">STATUS</span>
                             <div id="led-1" class="led-indicator" aria-label="Responsible status indicator off"></div>
                         </div>
 
-                        <!-- Switch Target -->
-                        <div class="switch-housing">
-                            <button 
-                                id="switch-1"
-                                onclick="toggleSwitch(1)"
-                                class="switch-track focus:outline-none"
-                                role="switch"
-                                aria-checked="false"
-                                aria-label="Toggle Responsible">
-                                <div class="switch-handle"></div>
-                            </button>
+                        <div class="slider-housing">
+                            <div 
+                                id="slider-track-1"
+                                class="slider-track"
+                                role="slider"
+                                aria-valuemin="0"
+                                aria-valuemax="1"
+                                aria-valuenow="0"
+                                aria-label="Responsible Slider">
+                                <div id="slider-handle-1" class="slider-handle">
+                                    <div class="slider-handle-grip"></div>
+                                    <span id="handle-text-1" class="slider-handle-text">OFF</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Label -->
                         <div class="text-center mt-1">
                             <span class="block text-base sm:text-lg font-black tracking-wider text-slate-100">
                                 RESPONSIBLE
                             </span>
-                            <span id="state-1" class="text-xs font-bold text-slate-500 uppercase tracking-widest">OFF</span>
+                            <span id="state-1" class="text-xs font-bold text-slate-400 uppercase tracking-widest">0 PTS</span>
                         </div>
                     </div>
 
-                    <!-- SWITCH 2: RESPECTFUL -->
+                    <!-- SLIDER 2: RESPECTFUL -->
                     <div class="flex flex-col items-center gap-3">
-                        <!-- LED Indicator -->
                         <div class="flex flex-col items-center gap-1">
                             <span class="text-[10px] font-extrabold text-slate-400 tracking-wider">STATUS</span>
                             <div id="led-2" class="led-indicator" aria-label="Respectful status indicator off"></div>
                         </div>
 
-                        <!-- Switch Target -->
-                        <div class="switch-housing">
-                            <button 
-                                id="switch-2"
-                                onclick="toggleSwitch(2)"
-                                class="switch-track focus:outline-none"
-                                role="switch"
-                                aria-checked="false"
-                                aria-label="Toggle Respectful">
-                                <div class="switch-handle"></div>
-                            </button>
+                        <div class="slider-housing">
+                            <div 
+                                id="slider-track-2"
+                                class="slider-track"
+                                role="slider"
+                                aria-valuemin="0"
+                                aria-valuemax="1"
+                                aria-valuenow="0"
+                                aria-label="Respectful Slider">
+                                <div id="slider-handle-2" class="slider-handle">
+                                    <div class="slider-handle-grip"></div>
+                                    <span id="handle-text-2" class="slider-handle-text">OFF</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Label -->
                         <div class="text-center mt-1">
                             <span class="block text-base sm:text-lg font-black tracking-wider text-slate-100">
                                 RESPECTFUL
                             </span>
-                            <span id="state-2" class="text-xs font-bold text-slate-500 uppercase tracking-widest">OFF</span>
+                            <span id="state-2" class="text-xs font-bold text-slate-400 uppercase tracking-widest">0 PTS</span>
                         </div>
                     </div>
 
                 </div>
             </section>
 
-            <!-- RIGHT HALF: Digital Readout Display (5 Columns in iPad Landscape) -->
+            <!-- RIGHT HALF: Digital Readout Display -->
             <section class="col-span-5 h-full flex flex-col items-center justify-center">
                 <div class="w-full max-w-sm digital-bezel">
                     
-                    <!-- Screen Header -->
                     <div class="flex justify-between items-center mb-3 px-1">
                         <div class="flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
@@ -367,17 +412,13 @@
                         <span class="text-[10px] font-bold text-slate-500 tracking-wider">1-DIGIT READOUT</span>
                     </div>
 
-                    <!-- 7-Segment Screen Display Surface -->
                     <div class="digital-screen py-10 flex items-center justify-center min-h-[220px]">
                         <div class="relative font-digital text-9xl leading-none select-none">
-                            <!-- Background Off-segment Ghost "8" -->
                             <span class="digit-background absolute inset-0 text-center">8</span>
-                            <!-- Active Live Score Digit -->
                             <span id="score-display" class="digit-foreground relative z-10 block text-center">0</span>
                         </div>
                     </div>
 
-                    <!-- Readout Label -->
                     <div class="mt-4 text-center">
                         <span class="text-xs font-black tracking-widest text-slate-400 uppercase">
                             TOTAL SCORE EARNED
@@ -388,25 +429,28 @@
 
         </div>
 
-        <!-- Footer Info Bar -->
         <footer class="flex justify-between items-center px-4 py-1 text-xs font-bold text-slate-500">
             <div>
-                STATUS: <span class="text-slate-300">READY</span>
+                CONSOLE: <span class="text-slate-300">ACTIVE</span>
             </div>
             <div>
-                OPTIMIZED FOR <span class="text-slate-300">IPAD LANDSCAPE</span>
+                FORMATTED FOR <span class="text-slate-300">IPAD LANDSCAPE</span>
             </div>
         </footer>
 
     </main>
 
     <script>
-        // Track states of 3 switches [Safe, Responsible, Respectful]
-        const switchStates = [false, false, false];
+        // Track states of 3 sliders [Safe, Responsible, Respectful]
+        const sliderStates = [false, false, false];
         let soundEnabled = true;
         let audioCtx = null;
 
-        // Initialize Web Audio API on first user touch for iOS/iPadOS Safari restrictions
+        // Track limits and metrics
+        const MIN_Y = 6;   // Top position (ON) in pixels
+        const MAX_Y = 96;  // Bottom position (OFF) in pixels
+
+        // Web Audio initialization
         function initAudio() {
             if (!audioCtx) {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -419,7 +463,7 @@
             }
         }
 
-        // Tactile mechanical switch click synthesizer
+        // Tactile mechanical slider sound synth
         function playClickSound(isTurningOn) {
             if (!soundEnabled) return;
             try {
@@ -431,94 +475,174 @@
 
                 osc.type = isTurningOn ? 'triangle' : 'sine';
                 
-                // Frequency sweep for physical click feel
-                const startFreq = isTurningOn ? 380 : 220;
-                const endFreq = isTurningOn ? 720 : 140;
+                const startFreq = isTurningOn ? 340 : 260;
+                const endFreq = isTurningOn ? 780 : 120;
 
                 osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + 0.04);
+                osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + 0.05);
 
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+                gain.gain.setValueAtTime(0.22, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
 
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
 
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.04);
+                osc.stop(audioCtx.currentTime + 0.05);
             } catch (e) {
-                // Fails quietly if audio permissions restricted
+                // Silently handle audio restrictions
             }
         }
 
-        // Toggle Switch Logic
-        function toggleSwitch(index) {
-            initAudio();
+        // Apply visual state based on boolean ON/OFF
+        function setSliderState(index, isOn, playSound = true) {
+            const previousState = sliderStates[index];
+            sliderStates[index] = isOn;
 
-            // Toggle state boolean
-            switchStates[index] = !switchStates[index];
-            const isNowOn = switchStates[index];
-
-            // Trigger mechanical click sound
-            playClickSound(isNowOn);
-
-            // DOM elements
-            const switchEl = document.getElementById(`switch-${index}`);
-            const ledEl = document.getElementById(`led-${index}`);
-            const stateTextEl = document.getElementById(`state-${index}`);
-
-            // Update UI elements
-            if (isNowOn) {
-                switchEl.classList.add('on');
-                switchEl.setAttribute('aria-checked', 'true');
-                ledEl.classList.add('active');
-                ledEl.setAttribute('aria-label', `${getLabelName(index)} indicator on`);
-                stateTextEl.textContent = 'ON';
-                stateTextEl.className = 'text-xs font-extrabold text-green-400 uppercase tracking-widest';
-            } else {
-                switchEl.classList.remove('on');
-                switchEl.setAttribute('aria-checked', 'false');
-                ledEl.classList.remove('active');
-                ledEl.setAttribute('aria-label', `${getLabelName(index)} indicator off`);
-                stateTextEl.textContent = 'OFF';
-                stateTextEl.className = 'text-xs font-bold text-slate-500 uppercase tracking-widest';
+            if (playSound && previousState !== isOn) {
+                playClickSound(isOn);
             }
 
-            // Update total score
+            const trackEl = document.getElementById(`slider-track-${index}`);
+            const handleEl = document.getElementById(`slider-handle-${index}`);
+            const ledEl = document.getElementById(`led-${index}`);
+            const handleTextEl = document.getElementById(`handle-text-${index}`);
+            const stateTextEl = document.getElementById(`state-${index}`);
+
+            trackEl.setAttribute('aria-valuenow', isOn ? '1' : '0');
+
+            if (isOn) {
+                trackEl.classList.add('on');
+                handleEl.style.transform = `translateY(${MIN_Y}px)`;
+                ledEl.classList.add('active');
+                handleTextEl.textContent = 'ON';
+                stateTextEl.textContent = '1 PT';
+                stateTextEl.className = 'text-xs font-extrabold text-green-400 uppercase tracking-widest';
+            } else {
+                trackEl.classList.remove('on');
+                handleEl.style.transform = `translateY(${MAX_Y}px)`;
+                ledEl.classList.remove('active');
+                handleTextEl.textContent = 'OFF';
+                stateTextEl.textContent = '0 PTS';
+                stateTextEl.className = 'text-xs font-bold text-slate-400 uppercase tracking-widest';
+            }
+
             updateScoreDisplay();
         }
 
-        function getLabelName(index) {
-            const labels = ['Safe', 'Responsible', 'Respectful'];
-            return labels[index] || '';
+        function setupSliderInteractions(index) {
+            const trackEl = document.getElementById(`slider-track-${index}`);
+            const handleEl = document.getElementById(`slider-handle-${index}`);
+            let isDragging = false;
+            let startY = 0;
+            let initialY = MAX_Y;
+
+            function getClientY(e) {
+                return e.touches ? e.touches[0].clientY : e.clientY;
+            }
+
+            function onPointerDown(e) {
+                initAudio();
+                isDragging = true;
+                handleEl.classList.add('dragging');
+                
+                const rect = trackEl.getBoundingClientRect();
+                const handleHeight = 92;
+                const innerHeight = rect.height - handleHeight;
+                
+                // Calculate current Y relative to track
+                const clickY = getClientY(e) - rect.top - (handleHeight / 2);
+                let clampedY = Math.max(MIN_Y, Math.min(MAX_Y, clickY));
+                
+                startY = getClientY(e);
+                initialY = sliderStates[index] ? MIN_Y : MAX_Y;
+
+                // Add document listeners for smooth dragging outside track bounds
+                window.addEventListener('pointermove', onPointerMove, { passive: false });
+                window.addEventListener('pointerup', onPointerUp);
+                window.addEventListener('pointercancel', onPointerUp);
+            }
+
+            function onPointerMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+
+                const deltaY = getClientY(e) - startY;
+                let newY = initialY + deltaY;
+                newY = Math.max(MIN_Y, Math.min(MAX_Y, newY));
+
+                handleEl.style.transform = `translateY(${newY}px)`;
+
+                // Dynamic preview switch threshold at midpoint
+                const thresholdY = (MIN_Y + MAX_Y) / 2;
+                const previewOn = newY < thresholdY;
+
+                if (previewOn) {
+                    trackEl.classList.add('on');
+                    document.getElementById(`handle-text-${index}`).textContent = 'ON';
+                } else {
+                    trackEl.classList.remove('on');
+                    document.getElementById(`handle-text-${index}`).textContent = 'OFF';
+                }
+            }
+
+            function onPointerUp(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                handleEl.classList.remove('dragging');
+
+                window.removeEventListener('pointermove', onPointerMove);
+                window.removeEventListener('pointerup', onPointerUp);
+                window.removeEventListener('pointercancel', onPointerUp);
+
+                // Determine final state based on handle position or click
+                const rect = trackEl.getBoundingClientRect();
+                const endY = getClientY(e) - rect.top;
+                const trackHeight = rect.height;
+
+                // Toggle if simple tap, or snap to closest end if dragged
+                const draggedDistance = Math.abs(getClientY(e) - startY);
+                let finalState;
+
+                if (draggedDistance < 6) {
+                    // Tap gesture toggles current state
+                    finalState = !sliderStates[index];
+                } else {
+                    // Dragged gesture snaps depending on upper/lower half
+                    finalState = endY < (trackHeight / 2);
+                }
+
+                setSliderState(index, finalState, true);
+            }
+
+            trackEl.addEventListener('pointerdown', onPointerDown);
         }
 
-        // Calculate and render score
+        // Calculate and render score on digital readout
         function updateScoreDisplay() {
-            const totalPoints = switchStates.reduce((acc, curr) => acc + (curr ? 1 : 0), 0);
+            const totalPoints = sliderStates.reduce((acc, curr) => acc + (curr ? 1 : 0), 0);
             const scoreDisplay = document.getElementById('score-display');
 
             if (scoreDisplay.textContent !== totalPoints.toString()) {
                 scoreDisplay.textContent = totalPoints;
 
-                // Trigger digit pop pulse animation
+                // Trigger pulse animation
                 scoreDisplay.classList.remove('pulse-effect');
                 void scoreDisplay.offsetWidth; // Force CSS reflow
                 scoreDisplay.classList.add('pulse-effect');
             }
         }
 
-        // Reset all switches back to down position
+        // Reset all sliders back to bottom OFF position
         function resetAll() {
             initAudio();
-            switchStates.forEach((state, idx) => {
-                if (state) {
-                    toggleSwitch(idx);
-                }
+            sliderStates.forEach((_, idx) => {
+                setSliderState(idx, false, false);
             });
+            playClickSound(false);
         }
 
-        // Toggle sound state
+        // Toggle Sound FX
         function toggleSound() {
             soundEnabled = !soundEnabled;
             const statusEl = document.getElementById('sound-status');
@@ -535,15 +659,20 @@
             }
         }
 
-        // Add keyboard fallback shortcuts for testing (1, 2, 3, R)
+        // Keyboard navigation shortcuts (1, 2, 3, R)
         document.addEventListener('keydown', (e) => {
-            if (e.key === '1') toggleSwitch(0);
-            if (e.key === '2') toggleSwitch(1);
-            if (e.key === '3') toggleSwitch(2);
+            if (e.key === '1') setSliderState(0, !sliderStates[0]);
+            if (e.key === '2') setSliderState(1, !sliderStates[1]);
+            if (e.key === '3') setSliderState(2, !sliderStates[2]);
             if (e.key === 'r' || e.key === 'R') resetAll();
         });
 
-        // Ensure audio context unlocks on first iPad screen touch
+        // Initialize interaction listeners on load
+        window.addEventListener('DOMContentLoaded', () => {
+            [0, 1, 2].forEach(index => setupSliderInteractions(index));
+        });
+
+        // Ensure audio unlocks on iPad touch
         document.addEventListener('touchstart', function unlockAudio() {
             initAudio();
             document.removeEventListener('touchstart', unlockAudio);
